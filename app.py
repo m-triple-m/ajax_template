@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, jsonify, redirect, session
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
-
+from scrapper import Scrapper
 
 app=Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
@@ -65,6 +65,20 @@ def Logout():
     return redirect('/signin')
     
 
+@app.route('/scrap')
+def Scrap():
+    product = request.args.get('product')
+    print(product)
+
+    scrap = Scrapper(product)
+    scrapped_sata = scrap.getdata()
+
+    return jsonify(scrapped_sata)
+
+@app.route('/display')
+def displayData():
+    return render_template('/display.html')
+
 if __name__ == "__main__":
     app.run(debug=True)
 
@@ -80,4 +94,4 @@ if __name__ == "__main__":
 
 
 
-','.join([item.text for item in features])
+# ','.join([item.text for item in features]) 

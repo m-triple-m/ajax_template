@@ -1,1 +1,57 @@
-<Home Page>
+{% extends 'layout.html' %}
+
+{% block css %}{% endblock %}
+
+{% block body %}
+
+<div class="container mt-5">
+    <p class="h1 text-center text-light">Ecommerce Website Multipage Scrapper</p>
+    
+    <div class="card">
+        <div class="card-body">
+            <label>Search Product</label>
+            <input class="form-control" name="product" id="product">
+            <button class="btn btn-primary" id="start">Start Scraping</button>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+{% block js %}
+<script>
+    $(document).ready(() => {
+
+        $('#start').click(() => {
+            const product = $('#product').val()
+
+
+            $.ajax({url : '/scrap', data : {product : product}, method : "get", complete : (data) => {
+                console.log(data.responseJSON);
+                sessionStorage.setItem('data', JSON.stringify(data.responseJSON))
+                    Swal.fire({
+                        icon : 'success',
+                        title: 'Data Successfully Collected!',
+                        html: 'Proceed to see',
+                        }).then(() => {
+                            // window.location.replace('/display')
+                        })
+                
+            },
+            beforeSend: () => {
+                Swal.fire({
+                    title: 'Wait a bit!',
+                    html: 'This may take some time',
+                    timerProgressBar: true,
+                    onBeforeOpen: (
+                        
+                    ) => {
+                        Swal.showLoading();
+                    },
+                    })
+            },
+            })
+        });
+
+    });
+</script>
+{% endblock %}
