@@ -4,10 +4,22 @@
 
 {% block body %}
 
-<div class="container mt-5">
+<div class="container-fluid mt-5">
     <p class="h1 text-center text-light">Scrapping Results</p>
     
-    
+    <table class="table table-dark table-striped table-hover">
+        <thead>
+            <tr>
+                <th>Product Name</th>
+                <th>No. of reviews</th>
+                <th>Average Rating</th>
+                <th>Details</th>
+                <th>Price</th>
+            </tr>
+        </thead>
+        <tbody id="p-list">
+        </tbody>
+    </table>
 </div>
 
 {% endblock %}
@@ -16,6 +28,18 @@
     $(document).ready(() => {
         data = JSON.parse(sessionStorage.getItem('data'))
         console.log(data)
+
+        data.forEach(item => {
+            $('#p-list').append(`
+            <tr>
+                <td><a href="${item.link}" class="h5" style="color : white">${item.name}</a></td>
+                <td>${item.rating}</td>
+                <td>${item.avgrating}</td>
+                <td>${item.features}</td>
+                <td class="h4">${item.price}</td>
+            </tr>`
+            )
+        });
     });
 </script>
 {% endblock %}

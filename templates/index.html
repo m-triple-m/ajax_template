@@ -9,9 +9,20 @@
     
     <div class="card">
         <div class="card-body">
-            <label>Search Product</label>
-            <input class="form-control" name="product" id="product">
-            <button class="btn btn-primary" id="start">Start Scraping</button>
+            <p class="display-4">Search Product here</p>
+            <hr>
+            <div class="row">
+                <div class="col-md-8">
+                    <label>Product Name</label>
+                    <input class="form-control" name="product" id="product">
+                </div>
+
+                <div class="col-md-4">
+                    <label>Maximum no. of Pages</label>
+                    <input class="form-control" name="max" id="max">
+                </div>
+            </div>
+            <button class="btn btn-outline-primary mt-5 btn-lg" id="start">Start Scraping</button>
         </div>
     </div>
 </div>
@@ -23,9 +34,9 @@
 
         $('#start').click(() => {
             const product = $('#product').val()
+            const max = $('#max').val()
 
-
-            $.ajax({url : '/scrap', data : {product : product}, method : "get", complete : (data) => {
+            $.ajax({url : '/scrap', data : {product : product, maxpages : max}, method : "get", complete : (data) => {
                 console.log(data.responseJSON);
                 sessionStorage.setItem('data', JSON.stringify(data.responseJSON))
                     Swal.fire({
@@ -33,7 +44,7 @@
                         title: 'Data Successfully Collected!',
                         html: 'Proceed to see',
                         }).then(() => {
-                            // window.location.replace('/display')
+                            window.location.replace('/display')
                         })
                 
             },

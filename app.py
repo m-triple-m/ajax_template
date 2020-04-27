@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, jsonify, redirect, session
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 from scrapper import Scrapper
+import pandas as pd
 
 app=Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
@@ -13,6 +14,16 @@ class User(db.Model):
     username = db.Column(db.String(30), unique = True, nullable = False)
     email = db.Column(db.String(20), nullable = True)
     password = db.Column(db.String(30), nullable = False)
+
+    def __repr__(self):
+        return f'self.username, self.email, self.password'
+
+class Record(db.Model):
+    id = db.Column(db.Integer, primary_key = True)
+    product = db.Column(db.String(30), nullable = False)
+    created = db.Column(db.String(20), nullable = True)
+    pages = db.Column(db.String(30), nullable = False)
+    data = db.Column(db.String(30), nullable = False)
 
     def __repr__(self):
         return f'self.username, self.email, self.password'
@@ -68,30 +79,37 @@ def Logout():
 @app.route('/scrap')
 def Scrap():
     product = request.args.get('product')
-    print(product)
+    maxpages = request.args.get('max')
+    if not maxpages:
+        maxpages = 2
+    print(product, maxpages)
 
-    scrap = Scrapper(product)
-    scrapped_sata = scrap.getdata()
+    scrap = Scrapper()
+    scrapped_data, csvfile = scrap.start(product, max = maxpages)
 
-    return jsonify(scrapped_sata)
+    record = Record(product= product, created= datetime.today().strftime('%d_%m_%Y'), pages= maxpages,
+     data= csvfile)
+    db.session.add(record)
+    db.session.commit()
+
+    return jsonify(scrapped_data)
 
 @app.route('/display')
 def displayData():
     return render_template('/display.html')
 
+@app.route('/report')
+def report():
+    data = Record.query.all()
+    return render_template('report.html', data = data)
+
+@app.route('/scrapdata')
+def scrappedData():
+    id = request.args.get('id')
+    data = Record.query.filter_by(id=id).first()
+    df = pd.read_csv(data.data)
+
+    return render_template('scrapdetails.html', data = df)
+
 if __name__ == "__main__":
-    app.run(debug=True)
-
-
-
-
-
-
-
-
-
-
-
-
-
-# ','.join([item.text for item in features]) 
+    app.run(debug=True, host='192.168.43.37')
