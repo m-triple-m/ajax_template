@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>Home - Brand</title>
+    <link rel="stylesheet" href="static/assets/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:300,400,700,300italic,400italic,700italic">
+    <link rel="stylesheet" href="static/assets/fonts/font-awesome.min.css">
+    <link rel="stylesheet" href="static/assets/fonts/simple-line-icons.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.2/animate.min.css">
+    <style>
+        .mid-card{
+            box-shadow: 3px 3px 5px 1px rgba(0, 0, 0, 0.698);
+        }
+        .header-mg{
+            background: linear-gradient(rgba(4, 5, 110, 0.712), rgba(86, 0, 93, 0.685)),
+            url('static/assets/img/bg-masthead.jpg');
+            background-size:cover
+        }
+        .input-card{
+            margin-top: -10rem;border-left: 4px solid blue;
+            box-shadow: 2px 2px 30px 10px rgba(0, 0, 0, 0.287);
+        }
+        .content{
+            padding-top: 1rem;
+            font-size: larger;
+        }
+    </style>
+</head>
+
+<body>
+    
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="/">Movie Recommendation System</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNavDropdown">
+          <ul class="navbar-nav ml-auto">
+            <li class="nav-item active">
+              <a class="nav-link" href="/">Home <span class="sr-only">(current)</span></a>
+            </li>
+            <li class="nav-item">
+                <a href="report" class="nav-link" >View Report</a>
+            </li>
+            {% if not loggedin %}
+            <li class="nav-item">
+              <a class="nav-link" href="/signin">login</a>
+            </li>
+            {% else %}
+            <li class="nav-item">
+              <a class="nav-link" href="/logout">logout</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" style="color: black;"><strong>Hello {{loggedin}}</strong></a>
+            </li>
+            {% endif %}
+            
+          </ul>
+        </div>
+      </nav>
+
+    <header class="masthead text-white text-center header-mg">
+        <div class="overlay"></div>
+        <div class="container">
+            <div class="row">
+                <div class="col-xl-8 mx-auto" style="text-shadow: 3px 3px 5px rgba(0, 0, 0, 0.698)">
+                    <h1>AI based Movie Recommendation System</h1>
+                    <h3 class="mb-5">Proposed system is based on a Machine Learning Prediction Model to predict movie recommendation for the customers.</h3>
+                </div>
+            </div>
+        </div>
+        
+    </header>
+    <div class="container">
+        <div class="card input-card">
+            <div class="card-body">
+                <h1 class="text-center">Search Product here</h1>
+                <hr>
+                <div class="row mt-5">
+                    <div class="col-md-8">
+                        <label>Product Name</label>
+                        <input class="form-control" name="product" id="product">
+                    </div>
+    
+                    <div class="col-md-4">
+                        <label>Maximum no. of Pages</label>
+                        <input class="form-control" name="max" id="max">
+                    </div>
+                </div>
+
+                <div class="custom-control custom-radio custom-control-inline">
+                    <input type="radio" id="customRadioInline1" name="website" class="custom-control-input website" value="flipkart">
+                    <label class="custom-control-label" for="customRadioInline1">Flipkart</label>
+                  </div>
+                  <div class="custom-control custom-radio custom-control-inline">
+                    <input type="radio" id="customRadioInline2" name="website" class="custom-control-input website" value="snapdeal">
+                    <label class="custom-control-label" for="customRadioInline2">Snapdeal</label>
+                  </div>
+                  <div class="custom-control custom-radio custom-control-inline">
+                    <input type="radio" id="customRadioInline3" name="website" class="custom-control-input website" value="both" checked>
+                    <label class="custom-control-label" for="customRadioInline3">Flipkart and Snapdeal</label>
+                  </div>
+
+                <button class="btn btn-outline-primary mt-5 btn-lg btn-block" id="start">Start Scraping</button>
+            </div>
+        </div>
+    </div>
+    
+    <section class="bg-light mt-5">
+        <div class="container-fluid">
+            <div class="container">
+                <div class="row">
+                    <div class="col-1" style="border-right: 1px solid grey;">
+                        <p class="display-2">1</p>
+                    </div>
+                    <div class="col content">
+                        Lorem, ipsum dolor sit amet consectetur adipisicing elit. Sint architecto debitis pariatur officiis quos rem quasi quaerat quis delectus labore necessitatibus nemo vel mollitia, dolor soluta quia animi ipsa deserunt?
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="container-fluid" style="background-color: gainsboro;">
+            <div class="container">
+                <div class="row">
+                    <div class="col-1" style="border-right: 1px solid grey;">
+                        <p class="display-2">2</p>
+                    </div>
+                    <div class="col content">
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="container-fluid">
+            <div class="container">
+                <div class="row">
+                    <div class="col-1" style="border-right: 1px solid grey;">
+                        <p class="display-2">3</p>
+                    </div>
+                    <div class="col content">
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+
+            
+    </section>
+
+    <section class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-3">
+                <div class="card">
+                    <img src="static/dash.png" class="card-img-top" >
+                    <div class="card-body">
+                        <h2><a href="/dash">Dashboard</a></h2>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="card">
+                    <img src="static/dash.png" class="card-img-top" >
+                    <div class="card-body">
+                        <h2>History</h2>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+    </section>
+    
+
+    <script src="static/assets/js/jquery.min.js"></script>
+    <script src="static/assets/bootstrap/js/bootstrap.min.js"></script>
+    <script src="static/assets/js/bs-init.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@9"></script>
+
+    <script>
+        $(document).ready(() => {
+
+            $('#start').click(() => {
+            const product = $('#product').val()
+            const max = $('#max').val()
+            const website = $('input[name="website"]:checked').val();
+
+            $.ajax({url : '/scrap', data : {product : product, maxpages : max, website : website}, method : "get", complete : (data) => {
+                console.log(data.responseJSON);
+                sessionStorage.setItem('data', JSON.stringify(data.responseJSON))
+                    Swal.fire({
+                        icon : 'success',
+                        title: 'Data Successfully Collected!',
+                        html: 'Proceed to see',
+                        }).then(() => {
+                            window.location.replace('/display')
+                        })
+                
+            },
+            beforeSend: () => {
+                Swal.fire({
+                    title: 'Wait a bit!',
+                    html: 'This may take some time',
+                    timerProgressBar: true,
+                    onBeforeOpen: (
+                        
+                    ) => {
+                        Swal.showLoading();
+                    },
+                    })
+            },
+            })
+        });
+        })
+    </script>
+</body>
+
+</html>

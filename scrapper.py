@@ -18,7 +18,7 @@ class Scrapper:
         except Exception as e:
             print(e)
 
-    def collect(self, soup, container):
+    def collectFlipkart(self, soup, container ):
         if soup:
             try:
                 url = soup.find_all('a',attrs={'class':'_3fVaIS'})[1]
@@ -26,17 +26,39 @@ class Scrapper:
                 url = soup.find('a',attrs={'class':'_3fVaIS'})
 
             try:
-                for item in soup.find_all('div', {'class':'_1UoZlX'}):
-                    item_details = {}
-                    details = item.find('div', {'class' : '_1-2Iqu'})
-                    item_details["name"] = details.find('div', {'class' : '_3wU53n'}).text
-                    item_details["link"] = 'http://www.flipkart.com'+item.find('a', {'class' : '_31qSD5'}).attrs.get('href')
-                    item_details["features"] = ','.join([li.text for li in details.find('ul').find_all('li')])
-                    item_details["price"] = details.find('div',{'class':'_1vC4OE _2rQ-NK'}).text
-                    item_details["rating"] = details.find('span',{'class':'_38sUEc'}).find("span").text
-                    item_details["avgrating"] = details.find('div',{'class':'hGSR34'}).text
-                    container.append(item_details)
-                    print(container[0].keys())
+                listview = soup.find_all('div', {'class':'_1UoZlX'})
+                gridview =  soup.find_all('div', {'class':'_3liAhj'})
+
+                if listview:
+                    print('listview page')
+                    for item in listview:
+                        item_details = {}
+                        details = item.find('div', {'class' : '_1-2Iqu'})
+                        item_details["name"] = details.find('div', {'class' : '_3wU53n'}).text
+                        item_details["link"] = 'http://www.flipkart.com'+item.find('a', {'class' : '_31qSD5'}).attrs.get('href')
+                        item_details["features"] = ','.join([li.text for li in details.find('ul').find_all('li')])
+                        item_details["price"] = details.find('div',{'class':'_1vC4OE _2rQ-NK'}).text
+                        item_details["rating"] = details.find('span',{'class':'_38sUEc'}).find("span").text
+                        item_details["avgrating"] = details.find('div',{'class':'hGSR34'}).text
+                        item_details["website"] = 'flipkart'
+                        container.append(item_details)
+                        print(container[0].keys())
+
+                elif gridview:
+                    print('listview page')
+                    for details in soup.find_all('div', {'class':'_3liAhj'}):
+                        item_details = {}
+                        
+                        item_details["name"] = details.find('a', {'class' : '_2cLu-l'}).text
+                        item_details["link"] = 'http://www.flipkart.com'+details.find('a', {'class' : '_2cLu-l'}).attrs.get('href')
+                        item_details["features"] = ''
+                        item_details["price"] = details.find('div',{'class':'_1vC4OE'}).text
+                        item_details["rating"] = details.find('span',{'class':'_38sUEc'}).text
+                        item_details["avgrating"] = details.find('div',{'class':'hGSR34'}).text
+                        item_details["website"] = 'flipkart'
+                        container.append(item_details)
+                        print(container[0].keys())
+
             
             except Exception as e:
                 print('error parsing data')
@@ -44,6 +66,54 @@ class Scrapper:
             if url:
                 url = url.attrs.get('href')
                 curl = "https://www.flipkart.com"+url
+                print('next page link ==>',curl)
+                return curl,container
+            else:
+                print('no next url found')
+                return None, container
+
+    def collectSnapdeal(self, soup, container):
+        if soup:
+            try:
+                url = soup.find_all('a',attrs={'class':'_3fVaIS'})[1]
+            except:
+                url = soup.find('a',attrs={'class':'_3fVaIS'})
+
+            try:
+                print('section')
+                sections = snsoup.find_all('section', {'class': 'js-section'})
+                for section in sections:
+                    details = section.find_all('div', {'class' : 'product-tuple-description'})
+                    images = section.find_all('img', {'class' : 'product-image'})
+                    for detail, image in zip(details, images):
+                        item_details = {}
+                        
+                        # item_details["image"] = image.attrs.get('src')
+                        item_details["name"] = detail.find('p', {'class' : 'product-title'}).text
+                        item_details["link"] = detail.find('a', {'class' : 'dp-widget-link'}).attrs.get('href')
+                        item_details["features"] = ''
+                        item_details["price"] = '₹'+detail.find('span', {'class' : 'product-price'}).attrs.get('data-price')
+                        item_details["rating"] = ''
+                        item_details["avgrating"] = ''
+                        item_details["website"] = 'snapdeal'
+
+                        stardiv = detail.find('div', {'class' : 'filled-stars'})
+                        ratingdiv = detail.find('p', {'class' : 'product-rating-count'})
+
+                        if stardiv:
+                            item_details["avgrating"] = int(stardiv.attrs.get('style').split(':')[1].split('.')[0])*0.05
+                        if ratingdiv:
+                            item_details["rating"] = ratingdiv.text[1:-1]
+
+                        container.append(item_details)
+                        print(container[0].keys())
+            
+            except Exception as e:
+                print('error parsing data')
+
+            if url:
+                url = url.attrs.get('href')
+                curl = "https://www.snapdeal.com"+url
                 print('next page link ==>',curl)
                 return curl,container
             else:
@@ -58,27 +128,32 @@ class Scrapper:
         print('saved to', path)
         return path
 
-    def start(self, product, max = 2):
+    def start(self, product, website, max = 2):
         container = []
         self.product = product.replace(' ', '+')
         pre= 0
         self.url = self.host+self.product
         print(self.url)
-        # self.url = "https://www.flipkart.com/search?q=mobiles"
-        while True:
-            soup = self.get(self.url)
-            newurl,container = self.collect(soup,container)
-            if not newurl or int(newurl[-1]) > max or int(newurl[-1])< int(pre):
-                print('the end')
-                break
-            else:
-                self.url = newurl
-            pre = newurl[-1]
+
+        if website == 'both' or website == 'flipkart':
+            while True:
+                soup = self.get(self.url)
+                newurl,container = self.collectFlipkart(soup,container)
+                if not newurl or int(newurl[-1]) > max or int(newurl[-1])< int(pre):
+                    print('the end')
+                    break
+                else:
+                    self.url = newurl
+                pre = newurl[-1]
+
+        if website == 'both' or website == 'snapdeal':
+            snapSoup = self.get('https://www.snapdeal.com/search?keyword='+product)
+            snapUrl, container = self.collectSnapdeal(soup,container)
+            print(len(container))
         csvpath = self.save(datalist=container)
         return container, csvpath
 
-    
-        
+
 
 if __name__ == "__main__":
     scrap = Scrapper()

@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify, redirect, session
+from flask import Flask, render_template, request, jsonify, redirect, session, send_file
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 from scrapper import Scrapper
@@ -6,7 +6,7 @@ import pandas as pd
 
 app=Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
-app.secret_key = "Resident Evil 4 remake has been announced!!"
+app.secret_key = "i don't have a secret!!"
 db = SQLAlchemy(app)
 
 class User(db.Model):
@@ -24,6 +24,7 @@ class Record(db.Model):
     created = db.Column(db.String(20), nullable = True)
     pages = db.Column(db.String(30), nullable = False)
     data = db.Column(db.String(30), nullable = False)
+    user = db.Column(db.String(30), nullable = False)
 
     def __repr__(self):
         return f'self.username, self.email, self.password'
@@ -35,7 +36,7 @@ db.create_all()
 def home():
     if not session.get('user'):
         return redirect('/signin')
-    return render_template('index.html', loggedin = session.get('user'))
+    return render_template('home.html', loggedin = session.get('user'))
 
 @app.route('/signin', methods = ["POST", "GET"])
 def Signin():
@@ -80,15 +81,17 @@ def Logout():
 def Scrap():
     product = request.args.get('product')
     maxpages = request.args.get('max')
+    website = request.args.get('website')
+
     if not maxpages:
         maxpages = 2
     print(product, maxpages)
 
     scrap = Scrapper()
-    scrapped_data, csvfile = scrap.start(product, max = maxpages)
+    scrapped_data, csvfile = scrap.start(product, max = maxpages, website = website)
 
     record = Record(product= product, created= datetime.today().strftime('%d_%m_%Y'), pages= maxpages,
-     data= csvfile)
+     data= csvfile.split('/')[-1], user = session.get('user'))
     db.session.add(record)
     db.session.commit()
 
@@ -103,13 +106,35 @@ def report():
     data = Record.query.all()
     return render_template('report.html', data = data)
 
+
 @app.route('/scrapdata')
 def scrappedData():
     id = request.args.get('id')
-    data = Record.query.filter_by(id=id).first()
-    df = pd.read_csv(data.data)
+    sortprice = bool(request.args.get('sortprice'))
 
-    return render_template('scrapdetails.html', data = df)
+    data = Record.query.filter_by(id=id).first()
+    df = pd.read_csv('csvfiles/'+data.data)
+
+    if sortprice:
+        df = df.sort_values(by = 'price')
+
+    return render_template('scrapdetails.html', data = df, id=id)
+
+@app.route('/dash')
+def userdash():
+    if not session.get('user'):
+        return redirect('/signin')
+    
+    userdetails = User.query.filter_by(username = session.get('user')).first()
+    print(userdetails)
+    history = Record.query.filter_by(user = session.get('user')).all()
+    return render_template('userdash.html', userdetails = userdetails, history = history)
+
+@app.route('/download/<path:filename>', methods=['GET', 'POST'])
+def download(filename):
+    if not session.get('user'):
+        return redirect('/login')
+    return send_file(filename_or_fp=f'csvfiles/{filename}')
 
 if __name__ == "__main__":
-    app.run(debug=True, host='192.168.43.37')
+    app.run(debug=True)

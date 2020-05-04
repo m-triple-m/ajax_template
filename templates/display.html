@@ -1,43 +1,60 @@
 {% extends 'layout.html' %}
 
-{% block css %}{% endblock %}
+{% block css %}
+<style>
+    .fl{
+        margin: 0px;
+    }
+    .my-crd{
+        height: 25rem;
+    }
+</style>
+{% endblock %}
 
 {% block body %}
 
 <div class="container-fluid mt-5">
+    <a class="btn btn-danger" href="/">Back</a>
     <p class="h1 text-center text-light">Scrapping Results</p>
     
-    <table class="table table-dark table-striped table-hover">
-        <thead>
-            <tr>
-                <th>Product Name</th>
-                <th>No. of reviews</th>
-                <th>Average Rating</th>
-                <th>Details</th>
-                <th>Price</th>
-            </tr>
-        </thead>
-        <tbody id="p-list">
-        </tbody>
-    </table>
+
+    <div class="row" id="results">
+        
+    </div>
 </div>
 
 {% endblock %}
 {% block js %}
 <script>
     $(document).ready(() => {
+
+        list_feature = (str) => {
+            let flist = str.split(',');
+            let lis = '';
+            for(let f of flist.slice(0, 4)){
+                lis += `<p class="fl">${f}</p>`;
+            }
+            return lis;
+        }
+
         data = JSON.parse(sessionStorage.getItem('data'))
         console.log(data)
 
         data.forEach(item => {
-            $('#p-list').append(`
-            <tr>
-                <td><a href="${item.link}" class="h5" style="color : white">${item.name}</a></td>
-                <td>${item.rating}</td>
-                <td>${item.avgrating}</td>
-                <td>${item.features}</td>
-                <td class="h4">${item.price}</td>
-            </tr>`
+            $('#results').append(`
+            <div class="col-md-4">
+                <div class="card mt-5 my-crd">
+                    <div class="card-body">
+                        <img src="static/${item.website}.png" style="height: 50px;">
+                        <h4><a href="${item.link}" style="color : black">${item.name}</a></h4>
+                        <p class="h6">${item.rating}</p>
+                        <p class="h6">Average Rating : ${item.avgrating}</p>
+                        ${list_feature(item.features)}<br>
+                        <p class="h3">${item.price}</p>
+                    </div>
+                </div>
+            </div>
+            `
             )
         });
     });
