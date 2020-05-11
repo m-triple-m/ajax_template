@@ -28,7 +28,7 @@ class Scrapper:
             try:
                 listview = soup.find_all('div', {'class':'_1UoZlX'})
                 gridview =  soup.find_all('div', {'class':'_3liAhj'})
-
+                # print(len(lis))
                 if listview:
                     print('listview page')
                     for item in listview:
@@ -37,22 +37,24 @@ class Scrapper:
                         item_details["name"] = details.find('div', {'class' : '_3wU53n'}).text
                         item_details["link"] = 'http://www.flipkart.com'+item.find('a', {'class' : '_31qSD5'}).attrs.get('href')
                         item_details["features"] = ','.join([li.text for li in details.find('ul').find_all('li')])
-                        item_details["price"] = details.find('div',{'class':'_1vC4OE _2rQ-NK'}).text
+                        price = details.find('div',{'class':'_1vC4OE _2rQ-NK'}).text
+                        item_details["price"] = int(price[1:].replace(',', ''))
                         item_details["rating"] = details.find('span',{'class':'_38sUEc'}).find("span").text
                         item_details["avgrating"] = details.find('div',{'class':'hGSR34'}).text
                         item_details["website"] = 'flipkart'
                         container.append(item_details)
                         print(container[0].keys())
 
-                elif gridview:
-                    print('listview page')
-                    for details in soup.find_all('div', {'class':'_3liAhj'}):
+                if gridview:
+                    print('gridview page')
+                    for details in gridview:
                         item_details = {}
                         
                         item_details["name"] = details.find('a', {'class' : '_2cLu-l'}).text
                         item_details["link"] = 'http://www.flipkart.com'+details.find('a', {'class' : '_2cLu-l'}).attrs.get('href')
                         item_details["features"] = ''
-                        item_details["price"] = details.find('div',{'class':'_1vC4OE'}).text
+                        price = details.find('div',{'class':'_1vC4OE'}).text
+                        item_details["price"] = int(price[1:].replace(',', ''))
                         item_details["rating"] = details.find('span',{'class':'_38sUEc'}).text
                         item_details["avgrating"] = details.find('div',{'class':'hGSR34'}).text
                         item_details["website"] = 'flipkart'
@@ -81,7 +83,7 @@ class Scrapper:
 
             try:
                 print('section')
-                sections = snsoup.find_all('section', {'class': 'js-section'})
+                sections = soup.find_all('section', {'class': 'js-section'})
                 for section in sections:
                     details = section.find_all('div', {'class' : 'product-tuple-description'})
                     images = section.find_all('img', {'class' : 'product-image'})
@@ -92,7 +94,7 @@ class Scrapper:
                         item_details["name"] = detail.find('p', {'class' : 'product-title'}).text
                         item_details["link"] = detail.find('a', {'class' : 'dp-widget-link'}).attrs.get('href')
                         item_details["features"] = ''
-                        item_details["price"] = '₹'+detail.find('span', {'class' : 'product-price'}).attrs.get('data-price')
+                        item_details["price"] = int(detail.find('span', {'class' : 'product-price'}).attrs.get('data-price').replace(',', ''))
                         item_details["rating"] = ''
                         item_details["avgrating"] = ''
                         item_details["website"] = 'snapdeal'
@@ -101,7 +103,7 @@ class Scrapper:
                         ratingdiv = detail.find('p', {'class' : 'product-rating-count'})
 
                         if stardiv:
-                            item_details["avgrating"] = int(stardiv.attrs.get('style').split(':')[1].split('.')[0])*0.05
+                            item_details["avgrating"] = "{:.2f}".format(int(stardiv.attrs.get('style').split(':')[1].split('.')[0])*0.05)
                         if ratingdiv:
                             item_details["rating"] = ratingdiv.text[1:-1]
 
@@ -109,6 +111,7 @@ class Scrapper:
                         print(container[0].keys())
             
             except Exception as e:
+                print(e)
                 print('error parsing data')
 
             if url:
@@ -148,7 +151,7 @@ class Scrapper:
 
         if website == 'both' or website == 'snapdeal':
             snapSoup = self.get('https://www.snapdeal.com/search?keyword='+product)
-            snapUrl, container = self.collectSnapdeal(soup,container)
+            snapUrl, container = self.collectSnapdeal(snapSoup,container)
             print(len(container))
         csvpath = self.save(datalist=container)
         return container, csvpath

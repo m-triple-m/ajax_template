@@ -24,7 +24,10 @@
                 <td>{{record.created}}</td>
                 <td>{{record.pages}}</td>
                 <td>{{record.data}}</td>
-                <td><a href="/scrapdata?id={{record.id}}" class="btn btn-primary">View Details</a></td>
+                <td>
+                    <a href="/scrapdata?id={{record.id}}" class="btn btn-primary">View Details</a>
+                    <button onclick="del('{{record.id}}')" class="btn btn-danger">Delete</button>
+                </td>
             </tr>
             {% endfor %}
         </tbody>
@@ -35,7 +38,24 @@
 {% block js %}
 <script>
     $(document).ready(() => {
-        
+        del = (id) => {
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "You won't be able to revert this!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, delete it!',
+                cancelButtonText: 'No, cancel!',
+                reverseButtons: true
+                }).then((result) => {
+                    if(result.value){
+                        $.get('/delete', {id : id}, (data) => {
+                            console.log(data);
+                            location.reload(true);
+                        })
+                    }
+                })
+        }
     });
 </script>
 {% endblock %}

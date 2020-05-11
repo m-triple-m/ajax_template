@@ -29,6 +29,16 @@ class Record(db.Model):
     def __repr__(self):
         return f'self.username, self.email, self.password'
 
+# class Wish(db.Model):
+#     id = db.Column(db.Integer, primary_key = True)
+#     username = db.Column(db.String(30), nullable = False)
+#     productid = db.Column(db.String(20), nullable = True)
+#     productname = db.Column(db.String(50), nullable = True)
+#     added = db.Column(db.String(30), nullable = False)
+
+#     def __repr__(self):
+#         return f'self.username, self.email, self.password'
+
 db.create_all()
 
 @app.route('/')
@@ -110,13 +120,15 @@ def report():
 @app.route('/scrapdata')
 def scrappedData():
     id = request.args.get('id')
-    sortprice = bool(request.args.get('sortprice'))
+    sortprice = request.args.get('sortprice')
 
     data = Record.query.filter_by(id=id).first()
     df = pd.read_csv('csvfiles/'+data.data)
 
-    if sortprice:
+    if sortprice == '1':
         df = df.sort_values(by = 'price')
+    elif sortprice == '2':
+        df = df.sort_values(by = 'price', ascending = False)
 
     return render_template('scrapdetails.html', data = df, id=id)
 
@@ -135,6 +147,19 @@ def download(filename):
     if not session.get('user'):
         return redirect('/login')
     return send_file(filename_or_fp=f'csvfiles/{filename}')
+
+@app.route('/delete')
+def addToWish():
+    id = request.args.get('id')
+    rec = Record.query.filter_by(id = id).first()
+    db.session.delete(rec)
+    db.session.commit()
+    return jsonify('success')
+    
+# @app.route('/wishlist')
+# def Wishlist():
+#     wishlist = Wish.query.filter_by(username = session.get('user'))
+#     return render_template('wishlist.html', wishlist = wishlist)
 
 if __name__ == "__main__":
     app.run(debug=True)
